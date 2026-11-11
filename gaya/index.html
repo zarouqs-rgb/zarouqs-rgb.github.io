@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pilihan Gaya Video &amp; Tulisan</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-192.png"><meta name="theme-color" content="#0E1520">
 <style>
 body{margin:0;background:#0E1520;color:#E8ECF2;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 header{position:sticky;top:0;z-index:5;background:#0E1520f2;padding:12px 14px 10px;border-bottom:1px solid #223}
@@ -27,4 +28,5 @@ const q=document.getElementById('q');
 q.addEventListener('input',()=>{const s=q.value.trim().toLowerCase();
 document.querySelectorAll('.card').forEach(c=>c.classList.toggle('hide',!!s&&!c.dataset.q.includes(s)));
 document.querySelectorAll('.grid').forEach(g=>{const any=[...g.children].some(c=>!c.classList.contains('hide'));g.classList.toggle('hide',!any);const h=g.previousElementSibling;if(h&&h.tagName==='H3')h.classList.toggle('hide',!any);});});
-</script></body></html>
+</script><script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(()=>{});}</script>
+</body></html>

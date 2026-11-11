@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apps Jebat Saputra</title>
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{--bg:#0f172a;--card:#1e293b;--card2:#243247;--line:#334155;--txt:#e2e8f0;--mut:#94a3b8;--gold:#fbbf24;--gold2:#f59e0b;--grn:#22c55e;--red:#f87171}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{min-height:100vh;padding:max(16px,env(safe-area-inset-top)) 16px 40px}
+  .wrap{max-width:640px;margin:0 auto}
+  header{display:flex;align-items:center;gap:12px;margin:4px 0 14px}
+  header img{width:46px;height:46px;border-radius:12px}
+  header h1{font-size:1.3rem;margin:0;line-height:1.15}
+  header small{display:block;color:var(--mut);font-size:.8rem;font-weight:400}
+  .edit{margin-left:auto;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-weight:700;font-size:.85rem}
+  .edit[aria-pressed="true"]{background:var(--gold2);border-color:var(--gold2);color:#1c1917}
+  .search{width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-size:1rem;margin-bottom:6px}
+  .search::placeholder{color:var(--mut)}
+  .note{color:var(--mut);font-size:.82rem;margin:6px 2px 0;line-height:1.5}
+  h2{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin:20px 2px 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+  .tile{position:relative;display:flex;flex-direction:column;gap:6px;padding:14px 12px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:inherit;text-decoration:none;min-height:112px}
+  .tile:active{transform:scale(.97)}
+  .tile .ic{font-size:1.9rem;line-height:1}
+  .tile b{font-size:.98rem;line-height:1.2}
+  .tile span{font-size:.76rem;color:var(--mut);line-height:1.35}
+  .tile.nolink{border-style:dashed;opacity:.75}
+  .tile.nolink span.need{color:var(--gold)}
+  .tile.hidden{opacity:.4}
+  .badge{position:absolute;top:8px;right:8px;font-size:.66rem;padding:2px 6px;border-radius:6px;background:var(--card2);color:var(--mut)}
+  .add{display:none;align-items:center;justify-content:center;border-style:dashed;color:var(--gold);font-weight:700;background:transparent}
+  body.editing .add{display:flex}
+  body.editing .tile:not(.add){border-color:var(--gold2)}
+  .social{display:flex;gap:8px;margin-top:26px}
+  .social a{flex:1;text-align:center;padding:12px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--txt);text-decoration:none;font-weight:700;font-size:.9rem}
+  footer{text-align:center;color:var(--mut);font-size:.75rem;margin-top:18px;opacity:.7}
+  /* sheet */
+  .sheet{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .sheet.on{display:flex}
+  .panel{width:100%;max-width:560px;background:var(--card);border-radius:18px 18px 0 0;padding:18px 16px max(18px,env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+  .panel h3{margin:0 0 12px;font-size:1.05rem}
+  .panel label{display:block;font-size:.8rem;color:var(--mut);margin:10px 0 4px}
+  .panel input,.panel select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-size:.95rem}
+  .row{display:flex;gap:8px}
+  .row>*{flex:1}
+  .btns{display:flex;gap:8px;margin-top:16px}
+  .btns button{flex:1;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--txt);font-weight:700;font-size:.92rem}
+  .btns .pri{background:var(--gold2);border-color:var(--gold2);color:#1c1917}
+  .btns .del{color:var(--red)}
+  .hide{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="icon-192.png" alt="">
+    <h1>Apps Jebat Saputra<small id="count"></small></h1>
+    <button class="edit" id="edit" aria-pressed="false">✏️ Ubah</button>
+  </header>
+  <input class="search" id="q" type="search" placeholder="Cari app…" autocomplete="off">
+  <p class="note hide" id="editNote">Mod ubah: tekan mana-mana app untuk letak link, tukar nama atau sorok. Tekan <b>✏️ Siap</b> bila habis.</p>
+  <div id="list"></div>
+  <div class="social">
+    <a href="https://www.tiktok.com/@jebatsaputraa" target="_blank" rel="noopener">🎵 TikTok</a>
+    <a href="https://www.facebook.com/share/1BXvcaSa2W/" target="_blank" rel="noopener">📘 Facebook</a>
+  </div>
+  <footer>Dihasilkan oleh Jebat Saputra</footer>
+</div>
+
+<div class="sheet" id="sheet">
+  <div class="panel">
+    <h3 id="sTitle">Ubah app</h3>
+    <div class="row">
+      <div style="flex:0 0 74px"><label for="fIc">Ikon</label><input id="fIc" maxlength="4"></div>
+      <div><label for="fName">Nama</label><input id="fName"></div>
+    </div>
+    <label for="fDesc">Keterangan ringkas</label><input id="fDesc">
+    <label for="fUrl">Link app</label><input id="fUrl" type="url" inputmode="url" placeholder="https://….netlify.app">
+    <label for="fCat">Kumpulan</label><select id="fCat"></select>
+    <div class="btns">
+      <button id="bHide">🙈 Sorok</button>
+      <button id="bDel" class="del hide">🗑 Buang</button>
+      <button id="bCancel">Batal</button>
+      <button id="bSave" class="pri">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const CATS=["Kerja & Kandungan","Muzik","Game","Belajar","Lain-lain"];
+  // Senarai asal. Link kosong = belum diketahui; Putra boleh letak sendiri melalui ✏️ Ubah.
+  const DEFAULTS=[
+    {id:"teleprompter",cat:0,ic:"🎙️",name:"Teleprompter",desc:"Baca skrip & rakam suara narator",url:"https://zarouqs-rgb.github.io/Teleprompter/"},
+    {id:"mp3",cat:0,ic:"🎵",name:"Tukar Video ke MP3",desc:"Ekstrak & potong audio dari video",url:"https://stellar-daifuku-0acf0d.netlify.app/"},
+    {id:"gaya",cat:0,ic:"🎨",name:"Pilihan Gaya Video",desc:"Gaya video, tulisan, bentuk, doodle & watermark (G·T·S·F·B·K·D·W)",url:"https://zarouqs-rgb.github.io/gaya/"},
+    {id:"lift",cat:0,ic:"🛗",name:"Lift Diagnostic",desc:"Rekod kes & ukuran lif",url:""},
+    {id:"cover",cat:1,ic:"🎸",name:"Pembantu Cover",desc:"Tempo, kunci & kod lagu rujukan",url:""},
+    {id:"gitar",cat:1,ic:"🎼",name:"Pad Kod Gitar",desc:"Pad kod & tali gitar sebenar",url:""},
+    {id:"gendang",cat:1,ic:"🥁",name:"Gendang Jari",desc:"Main gendang dengan jari",url:""},
+    {id:"band",cat:1,ic:"🎹",name:"Band Jari",desc:"Iringan band automatik dari kod",url:""},
+    {id:"turbo",cat:2,ic:"🏎️",name:"Turbo Litar",desc:"Lumba kereta retro, 5 peringkat",url:"https://marvelous-sawine-069db0.netlify.app"},
+    {id:"gasing",cat:2,ic:"🌀",name:"Gasing Pangkah",desc:"Lastik gasing keluar gelanggang",url:""},
+    {id:"robot",cat:2,ic:"🤖",name:"Gelanggang Besi",desc:"Pertarungan robot",url:""},
+    {id:"maze",cat:3,ic:"🧭",name:"Maze Quest",desc:"Labirin 3D Tahun 4",url:"https://sweet-genie-17f652.netlify.app/"},
+    {id:"kancil",cat:3,ic:"🧩",name:"Kod Kancil",desc:"Belajar koding dengan blok",url:""},
+    {id:"pecahan",cat:3,ic:"🍕",name:"Misi Pecahan 100",desc:"100 soalan pecahan",url:""}
+  ];
+  const LS={get(k,d){try{const v=localStorage.getItem("hub:"+k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+            set(k,v){try{localStorage.setItem("hub:"+k,JSON.stringify(v));}catch(e){}}};
+  let over=LS.get("over",{});   // perubahan pada app asal: {id:{name,desc,url,ic,cat,hidden}}
+  let mine=LS.get("mine",[]);   // app tambahan Putra sendiri
+  let editing=false, cur=null;
+
+  const all=()=>DEFAULTS.map(a=>Object.assign({},a,over[a.id]||{},{own:false})).concat(mine.map(a=>Object.assign({},a,{own:true})));
+  const okUrl=u=>/^https?:\/\/\S+\.\S+/i.test(u||"");
+
+  function render(){
+    const q=$("q").value.trim().toLowerCase(), list=$("list"); list.textContent="";
+    const apps=all(); let shown=0;
+    CATS.forEach((c,ci)=>{
+      const items=apps.filter(a=>a.cat===ci&&(editing||!a.hidden)&&(!q||(a.name+" "+a.desc).toLowerCase().includes(q)));
+      if(!items.length&&!(editing&&!q))return;
+      const h=document.createElement("h2");h.textContent=c;list.append(h);
+      const g=document.createElement("div");g.className="grid";list.append(g);
+      items.forEach(a=>{
+        const has=okUrl(a.url); shown+=has&&!a.hidden?1:0;
+        const t=document.createElement("a");t.className="tile"+(has?"":" nolink")+(a.hidden?" hidden":"");
+        if(has&&!editing){t.href=a.url;}
+        t.innerHTML='<div class="ic"></div><b></b><span></span>';
+        t.querySelector(".ic").textContent=a.ic||"📱"; t.querySelector("b").textContent=a.name;
+        const sp=t.querySelector("span");
+        if(has){sp.textContent=a.desc||"";}else{sp.textContent="Tekan untuk letak link";sp.className="need";}
+        if(a.hidden){const bd=document.createElement("i");bd.className="badge";bd.textContent="disorok";t.append(bd);}
+        if(editing||!has){t.addEventListener("click",e=>{e.preventDefault();openSheet(a);});}
+        g.append(t);
+      });
+      if(editing&&!q){const ad=document.createElement("button");ad.className="tile add";ad.textContent="＋ Tambah app";ad.onclick=()=>openSheet(null,ci);g.append(ad);}
+    });
+    $("count").textContent=shown+" app sedia dibuka";
+  }
+
+  function openSheet(a,ci){
+    cur=a; const isNew=!a;
+    $("sTitle").textContent=isNew?"Tambah app baru":"Ubah: "+a.name;
+    $("fIc").value=isNew?"📱":(a.ic||"");
+    $("fName").value=isNew?"":a.name; $("fDesc").value=isNew?"":(a.desc||""); $("fUrl").value=isNew?"":(a.url||"");
+    $("fCat").innerHTML=CATS.map((c,i)=>`<option value="${i}">${c}</option>`).join(""); $("fCat").value=String(isNew?ci:a.cat);
+    $("bHide").classList.toggle("hide",isNew); $("bHide").textContent=a&&a.hidden?"👁 Tunjuk":"🙈 Sorok";
+    $("bDel").classList.toggle("hide",!(a&&a.own));
+    $("sheet").classList.add("on"); setTimeout(()=>(isNew?$("fName"):$("fUrl")).focus(),50);
+  }
+  function closeSheet(){$("sheet").classList.remove("on");cur=null;}
+  function patch(a,obj){
+    if(a.own){mine=mine.map(m=>m.id===a.id?Object.assign({},m,obj):m);LS.set("mine",mine);}
+    else{over[a.id]=Object.assign({},over[a.id]||{},obj);LS.set("over",over);}
+  }
+  $("bSave").onclick=()=>{
+    let url=$("fUrl").value.trim(); if(url&&!/^https?:\/\//i.test(url))url="https://"+url;
+    const obj={ic:$("fIc").value.trim()||"📱",name:$("fName").value.trim(),desc:$("fDesc").value.trim(),url,cat:+$("fCat").value};
+    if(!obj.name){$("fName").focus();return;}
+    if(url&&!okUrl(url)){$("fUrl").focus();return;}
+    if(cur)patch(cur,obj); else{mine.push(Object.assign({id:"m"+Date.now()},obj));LS.set("mine",mine);}
+    closeSheet();render();
+  };
+  $("bHide").onclick=()=>{if(cur){patch(cur,{hidden:!cur.hidden});closeSheet();render();}};
+  $("bDel").onclick=()=>{if(cur&&cur.own){mine=mine.filter(m=>m.id!==cur.id);LS.set("mine",mine);closeSheet();render();}};
+  $("bCancel").onclick=closeSheet;
+  $("sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet();});
+  $("edit").onclick=()=>{editing=!editing;document.body.classList.toggle("editing",editing);$("edit").setAttribute("aria-pressed",String(editing));
+    $("edit").textContent=editing?"✏️ Siap":"✏️ Ubah";$("editNote").classList.toggle("hide",!editing);render();};
+  $("q").addEventListener("input",render);
+  render();
+  if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+})();
+</script>
+</body>
+</html>

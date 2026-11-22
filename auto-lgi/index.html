@@ -1,0 +1,36 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Auto LGI</title></head><body style="background:#0e1118;color:#fff;font-family:sans-serif;padding:20px"><p id="m">Memuat Auto LGI…</p><script>
+window.__dl=function(name,href){
+var o=document.getElementById("dlov");
+if(!o){o=document.createElement("div");o.id="dlov";o.style.cssText="position:fixed;inset:0;background:rgba(8,10,16,.96);z-index:99999;overflow:auto;padding:14px;font:14px system-ui,sans-serif;color:#e8edf7";
+o.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><span style="color:#8d9ab3">Tekan <b>Simpan</b>, atau tekan lama imej → Simpan imej</span><button id="dlx" style="padding:10px 16px;border:0;border-radius:8px;background:#ff5a6e;color:#fff;font-weight:700">Tutup</button></div><div id="dlg" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px"></div>';
+document.body.appendChild(o);
+o.querySelector("#dlx").onclick=function(){o.remove()}}
+var c=document.createElement("div");c.style.cssText="background:#161b26;border-radius:10px;padding:8px";
+var im=document.createElement("img");im.src=href;im.style.cssText="width:100%;border-radius:8px;display:block";
+var t=document.createElement("div");t.textContent=name;t.style.cssText="font-size:12px;color:#8d9ab3;margin:6px 0;word-break:break-all";
+var b=document.createElement("button");b.textContent="Simpan";b.style.cssText="width:100%;padding:12px;border:0;border-radius:8px;background:#ffb23a;color:#000;font-weight:700";
+b.onclick=function(){
+fetch(href).then(function(r){return r.blob()}).then(function(bl){
+var f=new File([bl],name,{type:bl.type||"image/png"});
+if(navigator.canShare&&navigator.canShare({files:[f]})){return navigator.share({files:[f]}).catch(function(){})}
+var u=URL.createObjectURL(bl),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();
+setTimeout(function(){a.remove();URL.revokeObjectURL(u)},1500)
+}).catch(function(){b.textContent="Tekan lama imej untuk simpan"})};
+c.appendChild(im);c.appendChild(t);c.appendChild(b);o.querySelector("#dlg").appendChild(c)};
+(function(){var U=["https://raw.githubusercontent.com/zarouqs-rgb/jambatan/main/lgi.html","https://cdn.jsdelivr.net/gh/zarouqs-rgb/jambatan@main/lgi.html"];
+function patch(t){
+function line(t,k,n){var i=t.indexOf(k);if(i<0)return t;var e=t.indexOf("\n",i);return t.slice(0,i)+n+t.slice(e)}
+function rep(t,a,b){return t.indexOf(a)<0?t:t.split(a).join(b)}
+t=line(t,"function dl(name,href){","function dl(name,href){return window.__dl(name,href)}");
+t=line(t,"function charPrompt(c,f){",'function charPrompt(c,f){return "MASTER CHARACTER MODEL SHEET on ONE wide landscape image (16:9). Plain light-grey studio background, even soft lighting. Show the SAME character in four full-body views side by side in a neutral standing pose: front, three-quarter, side profile, back. Add three head close-ups of the same character: neutral, smiling, serious. Identical face, hair, outfit, colours and proportions in every view. No text, no labels, no captions, no watermark. "+stylePrefix(f)+"Character: "+c.name+". "+c.look}');
+t=rep(t,".ch img{width:100%;aspect-ratio:3/4;object-fit:cover;",".ch img{width:100%;aspect-ratio:16/10;object-fit:contain;");
+t=rep(t,"minmax(210px,1fr)","minmax(300px,1fr)");
+t=rep(t,"aspect-ratio:3/4;display:flex","aspect-ratio:16/10;display:flex");
+t=rep(t,'">Imej</button>','">Muat turun</button>');
+t=rep(t,'"Watak-"+c.name','"Master-Watak-"+c.name');
+t=rep(t,'<button id="bDlAll">Muat turun semua imej</button>','<button id="bDlAll">Muat turun semua imej</button><button id="bDlChars">Muat turun semua watak</button>');
+t=rep(t,"/* ---------- pulih ---------- */",'$("bDlChars").onclick=function(){if(!P)return;var n=0;(P.characters||[]).forEach(function(c){var im=images["c_"+c.name];if(im){n++;dl("Master-Watak-"+c.name+"_"+stamp()+".png",src(im))}});if(!n)log("Belum ada imej watak.")};\n/* ---------- pulih ---------- */');
+return t}
+function run(t){t=patch(t);var d=new DOMParser().parseFromString(t,"text/html"),b=document.body,S=[].slice.call(d.querySelectorAll("script"));S.forEach(function(s){s.parentNode.removeChild(s)});[].slice.call(d.head.querySelectorAll("style")).forEach(function(s){document.head.appendChild(document.importNode(s,true))});b.removeAttribute("style");b.innerHTML=d.body.innerHTML;S.forEach(function(s){var n=document.createElement("script");n.textContent=s.textContent;b.appendChild(n)})}
+function go(i){if(i>=U.length){document.getElementById("m").textContent="Gagal memuat app. Semak sambungan.";return}fetch(U[i]+"?t="+Date.now()).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){if(t.indexOf("</html>")<0)throw 0;return t}).then(run,function(){go(i+1)})}go(0)})();
+</script></body></html>
